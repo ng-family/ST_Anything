@@ -37,11 +37,13 @@
  *    2018-07-01  Dan Ogorchock  Added Pressure Measurement
  *    2018-08-06  Dan Ogorchock  Added formatting of MAC address
  *    2018-09-22  Dan Ogorchock  Added preference for debug logging
+ *    2019-02-05  Dan Ogorchock  Added Child Energy Meter
+ *    2019-04-23  Dan Ogorchock  Added importURL, tweaked log.debug statements
  *	
  */
  
 metadata {
-	definition (name: "HubDuino Parent Ethernet", namespace: "ogiewon", author: "Dan Ogorchock") {
+	definition (name: "HubDuino Parent Ethernet", namespace: "ogiewon", author: "Dan Ogorchock", importUrl: "https://raw.githubusercontent.com/DanielOgorchock/ST_Anything/master/HubDuino/Drivers/hubduino-parent-ethernet.groovy") {
         capability "Configuration"
         capability "Refresh"
         capability "Pushable Button"
@@ -72,7 +74,7 @@ def logsOff(){
 
 // parse events into attributes
 def parse(String description) {
-	if (logEnable) log.debug "Parsing '${description}'"
+	if (logEnable) log.debug "description= '${description}'"
 	def msg = parseLanMessage(description)
 	def headerString = msg.header
 
@@ -83,7 +85,7 @@ def parse(String description) {
 	def bodyString = msg.body
 
 	if (bodyString) {
-        if (logEnable) log.debug "Parsing: $bodyString"
+        if (logEnable) log.debug "msg= $bodyString"
     	def parts = bodyString.split(" ")
     	def name  = parts.length>0?parts[0].trim():null
     	def value = parts.length>1?parts[1].trim():null
@@ -331,7 +333,10 @@ private void createChildDevice(String deviceName, String deviceNumber) {
          		case "power": 
                 		deviceHandlerName = "Child Power Meter" 
                 	break
-         		case "servo": 
+          		case "energy": 
+                		deviceHandlerName = "Child Energy Meter" 
+                	break
+        		case "servo": 
                 		deviceHandlerName = "Child Servo" 
                 	break
          		case "pressure": 

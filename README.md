@@ -1,37 +1,34 @@
-ST_Anything v2.9.2
+ST_Anything v2.9.5
 ================
 
-**WARNING** - You must use the SmartThings Classic App with ST_Anything. 
+**WARNING** - You must use the SmartThings Classic App with ST_Anything. Without Hub Connected Device documentation from Samsung/SmartThings, I have no way to know how to support the new SmartThings (Connect) App.
 
-**WARNING** - If using an ESP8266, make sure you are using v2.4.2 of the Arduino ESP8266 Board manager (v2.4/2.4.1 introduced a memory leak causing ST_Anythign to crash after an hour or two) along with Arduino IDE 1.8.8.
+**WARNING** - If using an ESP8266, make sure you are using v2.5.2 of the Arduino ESP8266 Board manager (v2.4/2.4.1 introduced a memory leak causing ST_Anythign to crash after an hour or two) along with Arduino IDE 1.8.9.
 
 **Recent History:**
-- v2.9.2 - Added support for I2C devices - AM2320(temp, humid), TSL2561(lux), MAX44009(lux), BH1750(lux), BME280(temp,humid,pressure), BMP280(temp, pressure), and improved TCS34725(color lux).  Added ST_Anything_I2C_ESP8266WiFi.ino example sketch to demonstrate I2C sensors.
-
-- v2.9.1 - Added Servo Motor support, tweaked all device handlers for simplification and supportability, numerous small enhancements and bug fixes over the past few months (view Github History for details)
-
+- v2.9.5 - Added support for MKR1010, Arduino 1.8.9, ESP8266 v2.5.2, updated numerous libraries, etc...
+- v2.9.4 - Added support for the SHT31 (temp, humid) I2C sensor
+- v2.9.3 - Significant enhancements to the EX_Servo class and Child Device Handler - Thanks Jeff Albers!  ALso, an attempt to prevent duplicate child devices from being created.
 
 ## Architecture Flow Chart
 
 ![screenshot](https://cloud.githubusercontent.com/assets/5206084/25318949/d00b08b4-2865-11e7-82f6-9a355bb9082b.PNG)
 
-Note: The ST_Anything v1.6 release was created on 2017-02-11 to make sure everyone can still get back to the original ThingShield-only code if necessary.  
-Note: If you want the old ST_Anything v2.2 code, please pull it by the v2.2 release number and follow the old v2.2 ReadMe 
-Note: ST_Anything v2.9 was built using the Arduino IDE v1.8.8.  Please make sure to upgrade your IDE.
+Note: ST_Anything v2.9.5 was built using the Arduino IDE v1.8.9.  Please make sure to upgrade your IDE.
 
-Turn your Arduino UNO/MEGA/MKR1000, NodeMCU ESP8266, or ESP32 into a Anything you can imagine! ST_Anything is an Arduino library, sketch, and Device Handlers that works with your hardware to create an all-in-one SmartThings device. 
+Turn your Arduino UNO/MEGA/MKR1000, NodeMCU ESP8266, or ESP32 into Anything you can imagine! ST_Anything is an Arduino library, sketch, and Device Handlers that works with your hardware to create an all-in-one SmartThings device. 
 - Arduino with SmartThings ThingShield
 - Arduino with W5100 Ethernet shield
 - Arduino with W5500 Ethernet shield
 - Arduino with WiFi101 Shield (or Adafruit ATWINC1500 module)
 - Arduino MKR1000 (has integrated WiFi101)
+- Arduino MKR1010 (has integrated WiFiNINA)
 - Arduino with ESP-01 for WiFi
 - Standalone NodeMCU v1.0 ESP8266-12e
 - Standalone ESP-01 (or really any ESP8266 based board)
 - Standalone ESP32 board
 
-v2.0 Note:  There are some significant changes as compared to the old v1.x platform.  A signiciant rewrite of the "SmartThings" Arduino library was completed to incorporate Ethernet communications support.  To use ST_Anything v2.x, you must also use all of the other supporting libaries found in this GitHub repository.  Included is a the new SmartThings v2.x Arduino library which can be used standalone (examples are included in the library), or in conjunction with the ST_Anything library.
-v2.6 Note:  Version 2.6 builds upon the changes in v2.x to incorporate SmartThings new Composite Device Handler (DH).  This new functionality allows one Parent DH to create many Child Devices (using Child DHs).  This allows more than one of each SmartThings capability per Arduino.  Previously, this was only possible through the use of a Multiplexer SmartApp and virtual devices.  The only manual device that has to be create within the ST IDE is the Parent.  The ST_Anything Parent DH has been written to automagically create Child Devices that exist, or are added to, the Arduino ST_Anything sketch.
+
 
 THIS DOCUMENT IS A WORK IN PROGRESS!  The essential code is all here and has been tested.  Documentation is still lacking somewhat, so feel free to submit a pull request to improve this ReadMe as you try to get things working.
 
@@ -49,6 +46,7 @@ This package currently implements the following SmartThings Device Capabilities:
 - Temperature Measurement (DHT22 - requires Rob Tillaart's DHT 0.1.13 Library, included in this repo)
 - Temperature Measurement (using Dallas Semiconductor DS18B20's, requires OneWire and DallasTemperature libraries included in this repo)
 - Temperature Measurement (via the Adafruit MAX31855 Thermocouple library, included in this repo)
+- Temperature Measurement (via the Arduino MKR THERM Thermocouple library, included in this repo)
 - Temperature Measurement (using AM2320 sensor) (also does humidity)
 - Water Sensor (using an analog input a a simple moisture sesnsor such as http://amzn.com/B00HTSL7QC or http://a.co/eZNTyIH)
 - Door Control / Garage Door Control (i.e. Garage Door Contact Sensor + Relay Output) - See 'ST_Anything_Doors' example
@@ -66,13 +64,15 @@ This package currently implements the following SmartThings Device Capabilities:
 - Illuminance Measurement (using a Color TCS34725 I2C sensor)
 - Temperature Measurement (using a AM2320 I2C sensor)
 - Relative Humidity  Measurement (using a AM2320 I2C sensor)
+- Temperature Measurement (using a SHT31 I2C sensor)
+- Relative Humidity  Measurement (using a SHT31 I2C sensor)
 - Temperature Measurement (using a BME280 I2C sensor)
 - Relative Humidity  Measurement (using a BME280 I2C sensor)
 - Pressure Measurement (using a BME280 I2C sensor)
 - Temperature Measurement (using a BMP280 I2C sensor)
 - Pressure Measurement (using a BMP280 I2C sensor)
 
-Note: Attempting to use all of these at once on an Arduino UNO R3 is likely to result in running out of SRAM on the UNO (the UNO only has 2 kilobytes of RAM.)  Using an Arduino MEGA 2560 with 8 kilobytes of SRAM is recommended if you want to run everything at once.  The ESP8266, ESP32, and MKR1000 platforms also have a lot more memory available.
+Note: Attempting to use all of these at once on an Arduino UNO R3 is likely to result in running out of SRAM on the UNO (the UNO only has 2 kilobytes of RAM.)  Using an Arduino MEGA 2560 with 8 kilobytes of SRAM is recommended if you want to run everything at once.  The ESP8266, ESP32, and MKR1000, MKR1010 platforms also have a lot more memory available.
 
 
 ## Overview
@@ -83,6 +83,7 @@ ST_Anything consists of four main parts:
   - ST_Anything_Multiples_MEGAWiFiEsp.ino - Arduino MEGA + ESP-01 WiFi module with "AT Firmware"
   - ST_Anything_Multiples_WiFi101.ino - Arduino MEGA + WiFi101 Shield (or Adafruit ATWINC1500 module)
   - ST_Anything_Multiples_MKR1000.ino - Arduino MKR1000 (has onboard WiFi101 chip)
+  - ST_Anything_Multiples_MKR1010.ino - Arduino MKR1000 (has onboard WiFiNINA chip)
   - ST_Anything_Multiples_ESP8266WiFi.ino - NodeMCU v1.0 ESP8266-12e development board (no Arduino!)
   - ST_Anything_Multiples_ESP01WiFi.ino - ESP-01 (ESP8266-01) module (no Arduino!)
   - ST_Anything_Multiples_ThingShield.ino - Arduino UNO/MEGA + ST ThingShield
@@ -95,11 +96,11 @@ ST_Anything consists of four main parts:
   - parent-st-anything-ethernet.groovy (LAN-to-Hub, Arduino/W5100/W5500, Arduino/ESP-01, NodeMCU ESP8266-12e, ESP-01, ESP32, MKR1000)
   - parent-st-anything-thingshield.groovy (Thingshield-to-Hub)
   - child-xxxxxx.groovy 
-    - currently 18 child device handlers are available!
+    - currently 24 child device handlers are available!
 
-## Pre-Requisites for using LAN-to-HUB Ethernet connectivity (Arduino/W5100, Arduino/ESP-01, NodeMCU ESP8266, ESP-01, ESP32)
-- Your SmartThings HUB must have a Static TCP/IP Address assigned via your router's DHCP Server. Since this procedure varies by router model, Please Google it!
-- You'll need to identify a static TCP/IP address for your Arduino/W5100, Arduino/ESP-01, NodeMCU ESP8266, or ESP-01, ESP32 as you'll need this later when setting up the sketch. Choose an unused IP address outside of the range your router's DHCP server uses, but in the same subnet.
+## Pre-Requisites for using LAN-to-HUB Ethernet connectivity (Arduino/W5100, Arduino/W5500, Arduino/ESP-01, NodeMCU ESP8266, ESP-01, ESP32, MKR1000, MKR1010)
+- Your SmartThings HUB must have a Reserved/Static TCP/IP Address assigned via your router's DHCP Server. Since this procedure varies by router model, Please Google it!
+- You'll need to identify a static TCP/IP address for your Arduino/W5100, Arduino/W5500, Arduino/ESP-01, NodeMCU ESP8266, ESP-01, ESP32, MKR1000, or MKR1010 as you'll need this later when setting up the sketch. Choose an unused IP address outside of the range your router's DHCP server uses, but in the same subnet.
 
 ## Arduino IDE Setup Instructions 
 - Download the ST_Anything repository, focusing on the ST_Anything/Arduino/ folders
@@ -114,13 +115,13 @@ ST_Anything consists of four main parts:
   - Make sure you select the correct model of board you are compiling for. 
   - If building for a standalone ESP8266 board, make sure you have configured the Arduino IDE to include support for these boards.  Follow the guide at https://learn.sparkfun.com/tutorials/esp8266-thing-hookup-guide/installing-the-esp8266-arduino-addon
   
-**NOTE: Arduino IDE v1.8.8 + v2.4.2 ESP8266 Board support package for the Arduino IDE appears to have corrected the previous memory leak. Please use this combination of software which has been successfully tested.**
+**NOTE: Arduino IDE v1.8.9 + v2.5.2 ESP8266 Board Manager package for the Arduino IDE appears to have corrected the earlier memory leak. Please use this combination of software which has been successfully tested.**
   
   - If building for a standalone ESP32 board, make sure you have configured the Arduino IDE to include support for these boards.  Follow the guide at https://github.com/espressif/arduino-esp32/blob/master/README.md
 - If using a LAN-to-Hub (WiFi or Cat5 Ethernet) based device
   -Find the lines of the Sketch where it says "<---You must edit this line!"
     - You must ensure your ST hub's LAN IP address does not change.  Use your router's static DHCP assignment feature to make sure your ST hub always gets the same IP Address!  Enter that address in the corresponding line in the sketch.
-    - The Arduino must be assigned a static TCP/IP address, Gateway, DNS, Subnet Mask, MAC Address(W5100/W5500 only), SSID+Password(ESP8266,ESP01,ESP32,WiFi101,MKR1000)
+    - The Arduino must be assigned a static TCP/IP address, Gateway, DNS, Subnet Mask, MAC Address(W5100/W5500 only), SSID+Password(ESP8266,ESP01,ESP32,WiFi101,MKR1000,MKR1010)
     - *** NOTE: If using the W5100 Shield, YOU MUST ASSIGN IT A UNIQUE MAC ADDRESS in the sketch! Please leave the first octet in the MAC Address '06' as certain MAC addresses are UNICAST while others are MULTICAST. Your MAC must be UNICAST and be a 'Locally Administered Address' Please see https://en.wikipedia.org/wiki/MAC_address#Address_details for more information ***
     - *** NOTE: If using the W5500 Shield, YOU MUST ASSIGN IT A UNIQUE MAC ADDRESS in the sketch! Use the one packaged with the W5500 shield.
     - Note: If using an ESP-01 for WiFi-connecticity (i.e. as a WiFi dongle/shield) with an Arduino, the example assumes you're using an Arduino MEGA 2560. Attach the ESP-01 to Hardware Serial "Serial1" and make sure your ESP01 has current 'AT Firmware' installed.
@@ -198,10 +199,10 @@ Your screen should look like the following image:
 ## Items To Be Aware Of (regardless of whether using LAN or ThingShield)
 1) Please do not start changing any code before getting one of the examples up and running on both the Arduino/ESP8266/ESP32 and the Device Handlers.  It is always best to start with known working code before editing it.  This greatly reduces the amount of troubleshooting later.
 
-2) I am moving away from the old SmartApp Multiplexer + Virtual Devices with the v2.5 release of ST_Anything. I believe the ST Composite Device Handler architecture is far superior and much simpler for all users.
+2) I have moved away from the old SmartApp Multiplexer + Virtual Devices with the v2.5 release of ST_Anything. I believe the ST Composite Device Handler architecture is far superior and much simpler for all users.
   - Assuming you're keeping things fairly standard, you should never need to modify the groovy code within the Parent or Child Device Handlers!  Pretty much all changes are kept within the Arduino Sketch .ino file!
   - Child Devices are automatically created - no manual creation of Virtual Devices and no messy/complicated Multiplexer SmartApps!
-    - NOTE: There appears to be a race-condition within the ST platform that sometimes results in a duplicate child device being created.  Just simply delete the extra child device and everything should be fine.  I have never seen a duplicate occur after the initial creation (i.e. after the first few minutes.)  
+    - NOTE: There appears to be a race-condition within the ST platform that sometimes results in a duplicate child device being created.  Just simply delete the extra child device and everything should be fine.  I have never seen a duplicate occur after the initial creation (i.e. after the first few minutes.)  ***v2.9.3 - I have put in a fix that will hopefully prevent the duplicate child devices from being created.  Initial testing looks promising.***
 	UPDATE:  Apparently ST is still making backend changes to the Composite Device Handler.  As of 5/18/2017, you may see an "Error Creating Child Device" pop-up in the ST App.  This is because ST no longer allows child devices with duplicate Network IDs.  In this case, look through your Live Logging in the ST IDE to see which child device it is having an issue creating.  Delete the corresponding duplicate child using your phone's app, and then click REFRESH on the parent device.  Afterwards, the child will be created correctly.  Not sure why this happens, but it appears to be a SmartThings issue. (Note:  See 5/26/2017 update a few lines below!)
 	- NOTE: This error (Error Creating Child Device) may also occur when the device handler is installed by a non-owner user of a hub. Install the device handler on the hub owner account to fix. 
   - If you delete a Parent Device, all of its children are also deleted.  PLEASE NOTE that you can simply delete any child device individually if necessary (no need to delete the Parent Device!)  If the Arduino sketch no longer sends updates for those child devices, they will not be re-created.
@@ -225,6 +226,8 @@ Your screen should look like the following image:
   - Button: "button1", "button2", "button3", ...
   - Illuminance: "illuminance1", "illuminance2", "illuminance3", ...
   - Voltage: "voltage1", "voltage2", "voltage3", ...
+  - Power: "power1", "power2", "power3", ...
+  - Energy: "energy1", "energy2", "energy3", ...
   - RelaySwitch: "relaySwitch1", "relaySwitch2", "relaySwitch3", ...
   - Temperature: "temperature1", "temperature2", "temperature3", ...
   - Humidity: "humidity1", "humidity2", "humidity3", ...
@@ -242,7 +245,7 @@ Your screen should look like the following image:
 7) When using a ESP32 board, you need to be aware of some GPIO limitations
   - GPIO 34-39 are input only and do NOT support internal pullup resistors
   - GPIO  6-11 are reserved for FLASH.  Do not use these!
-  - The Arduino analogWrite() function is not supported as of 8/18/2017.  This means the EX_Switch_Dim ST_Anything Class does not support PWM output on the ESP32.
+  - The Arduino analogWrite() function is not supported as of 8/18/2017.  This means the EX_Switch_Dim ST_Anything Class does not support PWM output on the ESP32. EX_Servo also will not work on the ESP32.
 
 8) Button Devices - "where do they show up?"  Buttons show up in the SmartApps that use them.  The Aeon Minimote Device Handler, for example, has one tile with a remote control icon on it.  Nothing else.  It also has zero configuration options as well.  I used this as a model for adding "Button" capabilities to ST_Anything per a user request.  When you define the number of buttons (via the gear-based configuration menu in the parent DH) you are announcing to all SmartApps the number of buttons defined.  This in turn allows SmartApps like "Smart Lighting", "CoRE", and "WebCoRE" to know how many "buttons" to offer you to configure an action.  So, the easiest test is to create a new "Smart Lighting" automation, where you define the action to be based on a button "pushed" or "held" event from the Parent Device (no child devices are created for buttons).  Give it a try! I have used this successfully in the past for testing purposes.
 
@@ -269,3 +272,12 @@ Look at the documentation in the 'ST_Anything_Multiples_xxxx.ino' files for expl
 - v2.71 2017-05-28 Fix for Arduino + ESP01 (WiFi only) combination. Arduino IDE Serial Monitor window must now be set to 115200 baud to prevent ESP-01 timeouts. Also added support for Arduino MKR1000 board and Arduino + WiFi101 Shield (or Adafruit ATWINC1500 module).
 - v2.8  2017-08-16 Added support for ESP32 microcontroller - I used the following HiLetgo ESP Board from Amazon (https://www.amazon.com/gp/product/B0718T232Z/ref=oh_aui_detailpage_o00_s00?ie=UTF8&psc=1)
 - v2.9  2018-01-06 **Added Arduino OTA support for ESP8266;** added RSSI updates to the Parent Device for ESP8266, ESP32, WiFi101, and WiFiEsp; various new example sketches; support for analog RGB/RGBW LED strips; C to F and F to C temperature conversions in the Child Temperature DH; improved ESP32 WiFi stability; "Last Updated" date and time on all Child Devices; added support for the Adafruit TCS34725 Color Illuminance sensor; added noise filtering and linearization algorithm to PS_Voltage class; plus numerous small tweaks (view Github History for details)
+- v2.9.1 - Added Servo Motor support, tweaked all device handlers for simplification and supportability, numerous small enhancements and bug fixes over the past few months (view Github History for details)
+- v2.9.2 - Added support for I2C devices - AM2320(temp, humid), TSL2561(lux), MAX44009(lux), BH1750(lux), BME280(temp,humid,pressure), BMP280(temp, pressure), and improved TCS34725(color lux).  Added ST_Anything_I2C_ESP8266WiFi.ino example sketch to demonstrate I2C sensors.
+
+
+Note: The ST_Anything v1.6 release was created on 2017-02-11 to make sure everyone can still get back to the original ThingShield-only code if necessary.  
+Note: If you want the old ST_Anything v2.2 code, please pull it by the v2.2 release number and follow the old v2.2 ReadMe 
+
+v2.0 Note:  There are some significant changes as compared to the old v1.x platform.  A signiciant rewrite of the "SmartThings" Arduino library was completed to incorporate Ethernet communications support.  To use ST_Anything v2.x, you must also use all of the other supporting libaries found in this GitHub repository.  Included is a the new SmartThings v2.x Arduino library which can be used standalone (examples are included in the library), or in conjunction with the ST_Anything library.
+v2.6 Note:  Version 2.6 builds upon the changes in v2.x to incorporate SmartThings new Composite Device Handler (DH).  This new functionality allows one Parent DH to create many Child Devices (using Child DHs).  This allows more than one of each SmartThings capability per Arduino.  Previously, this was only possible through the use of a Multiplexer SmartApp and virtual devices.  The only manual device that has to be create within the ST IDE is the Parent.  The ST_Anything Parent DH has been written to automagically create Child Devices that exist, or are added to, the Arduino ST_Anything sketch.

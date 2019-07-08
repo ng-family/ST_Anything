@@ -24,10 +24,13 @@
  *    2018-02-16  Dan Ogorchock  Fixed preferences to work with Hubitat.
  *    2018-06-02  Dan Ogorchock  Revised/Simplified for Hubitat Composite Driver Model
  *    2018-09-22  Dan Ogorchock  Added preference for debug logging
+ *    2019-02-10  Dan Ogorchock  Added temperature units for display on the Hubitat Dashboard
+ *    2019-03-06  Dan Ogorchock  Improved rounding
+ *    2019-07-01  Dan Ogorchock  Added importUrl
  * 
  */
 metadata {
-	definition (name: "Child Temperature Sensor", namespace: "ogiewon", author: "Daniel Ogorchock") {
+	definition (name: "Child Temperature Sensor", namespace: "ogiewon", author: "Daniel Ogorchock", importUrl: "https://raw.githubusercontent.com/DanielOgorchock/ST_Anything/master/HubDuino/Drivers/child-temperature-sensor.groovy") {
 		capability "Temperature Measurement"
 		capability "Sensor"
 
@@ -88,28 +91,30 @@ def parse(String description) {
 	def parts = description.split(" ")
     def name  = parts.length>0?parts[0].trim():null
     def value = parts.length>1?parts[1].trim():null
+	def dispUnit = "°F"
     if (name && value) {
     	// Offset the temperature based on preference
-        def offsetValue = Math.round((Float.parseFloat(value))*100.0)/100.0d
-        offsetValue = offsetValue.round(1)
+        float tmpValue = Float.parseFloat(value)
+        
         if (tempOffset) {
-            offsetValue = offsetValue + tempOffset
+            tmpValue = tmpValue + tempOffset
         }
 
         if (tempUnitConversion == "2") {
             //if (logEnable) log.debug "tempUnitConversion = ${tempUnitConversion}"
-            double tempC = fahrenheitToCelsius(offsetValue.toFloat())  //convert from Fahrenheit to Celsius
-            offsetValue = tempC.round(1)
+            tmpValue = fahrenheitToCelsius(tmpValue)  //convert from Fahrenheit to Celsius
+            dispUnit = "°C"
         }
 
         if (tempUnitConversion == "3") {
             //if (logEnable) log.debug "tempUnitConversion = ${tempUnitConversion}"
-            double tempF = celsiusToFahrenheit(offsetValue.toFloat())  //convert from Celsius to Fahrenheit
-            offsetValue = tempF.round(1)
+            tmpValue = celsiusToFahrenheit(tmpValue)  //convert from Celsius to Fahrenheit
+            dispUnit = "°F"
         }
 
         // Update device
-        sendEvent(name: name, value: offsetValue)
+        tmpValue = tmpValue.round(1)
+        sendEvent(name: name, value: tmpValue, unit: dispUnit)
         // Update lastUpdated date and time
         def nowDay = new Date().format("MMM dd", location.timeZone)
         def nowTime = new Date().format("h:mm a", location.timeZone)
