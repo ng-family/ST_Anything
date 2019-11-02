@@ -29,6 +29,8 @@
  *    2018-06-24  Dan Ogorchock  Added Child Servo
  *    2018-07-01  Dan Ogorchock  Added Pressure Measurement
  *    2019-02-05  Dan Ogorchock  Added Child Energy Meter
+ *    2019-09-08  Dan Ogorchock  Minor tweak to Button logic due to changes in the the Arduino IS_Button.cpp code
+ *    2019-10-31  Dan Ogorchock  Added Child Valve
  *	
  */
  
@@ -98,9 +100,11 @@ def parse(String description) {
         
 		if (name.startsWith("button")) {
 			//log.debug "In parse:  name = ${name}, value = ${value}, btnName = ${name}, btnNum = ${namemun}"
-        	results = createEvent([name: namebase, value: value, data: [buttonNumber: namenum], descriptionText: "${namebase} ${namenum} was ${value} ", isStateChange: true, displayed: true])
-			log.debug results
-			return results
+            if ((value == "pushed") || (value == "held")) {
+                results = createEvent([name: namebase, value: value, data: [buttonNumber: namenum], descriptionText: "${namebase} ${namenum} was ${value} ", isStateChange: true, displayed: true])
+                log.debug results
+                return results
+            }
         }
 
         def isChild = containsDigit(name)
@@ -290,6 +294,9 @@ private void createChildDevice(String deviceName, String deviceNumber) {
          	case "pressure": 
                 deviceHandlerName = "Child Pressure Measurement" 
                 break
+         	case "valve": 
+                deviceHandlerName = "Child Valve" 
+                break 
             default: 
                 log.error "No Child Device Handler case for ${deviceName}"
         }
